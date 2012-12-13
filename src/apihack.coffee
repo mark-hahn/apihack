@@ -1,5 +1,6 @@
 ###
-    Main node app for apiHack
+    apihack.coffee
+
     node apiHack
 ###
 
@@ -14,18 +15,34 @@ srvr = http.createServer (req, res) ->
 
 	console.log 'ah: req.url', req.url
 
-	{pathname} = url.parse req.url, yes
-	topDir = pathname.split('/')[1]
+	err = (msg) ->
+		console.log "\nERROR apiHack: #{msg}\n"
+		res.writeHead 404, "Content-Type": "text/plain"
+		res.end msg
 
-	if req.url is '/favicon.ico'
-		send(req, req.url).from(path.join __dirname, '..', 'images').pipe(res)
-		return
+	if req.method is 'GET'
+		if req.url is '/favicon.ico'
+			send(req, req.url)
+				.from(path.join __dirname, '..', 'images')
+				.on('error', (error) -> err "Error sending favicon:\n#{error.message}")
+				.pipe res
+			return
 
-	if topDir = 'images'
-		send(req, req.url).from(path.join __dirname, '..').pipe(res)
-		return
+		{pathname} = url.parse req.url, yes
+		topDir = pathname.split('/')[1]
 
-	res.writeHead 200, "Content-Type": "text/html"
-	res.end index.html
+		if topDir is 'images'
+			send(req, req.url)
+				.from(path.join __dirname, '..')
+				.on('error', (error) ->
+					err "Error sending file: #{decodeURI req.url}\n#{error.message}")
+				.pipe res
+			return
 
-srvr.listen 8080, "127.0.0.1"
+		res.writeHead 200, "Content-Type": "text/html"
+		res.end index.html
+
+	if req.method is 'POST'
+		res.end ''
+
+srvr.listen +process.env.APIHACK_PORT or 8080
