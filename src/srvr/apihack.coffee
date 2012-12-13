@@ -1,7 +1,8 @@
 ###
-    apihack.coffee
+    srvr/apihack.coffee
 
-    node apiHack
+   	run "coffee apiHack" to start apihack server
+    port to listen to is set by env var APIHACK_PORT (default 8080)
 ###
 
 http  = require 'http'
@@ -23,17 +24,16 @@ srvr = http.createServer (req, res) ->
 	if req.method is 'GET'
 		if req.url is '/favicon.ico'
 			send(req, req.url)
-				.from(path.join __dirname, '..', 'images')
+				.from(path.join __dirname, '../../images')
 				.on('error', (error) -> err "Error sending favicon:\n#{error.message}")
 				.pipe res
 			return
 
-		{pathname} = url.parse req.url, yes
-		topDir = pathname.split('/')[1]
+		topDir = url.parse(req.url, yes).pathname.split('/')[1]
 
-		if topDir is 'images'
+		if topDir in ['images', 'css', 'js']
 			send(req, req.url)
-				.from(path.join __dirname, '..')
+				.from(path.join __dirname, '../..')
 				.on('error', (error) ->
 					err "Error sending file: #{decodeURI req.url}\n#{error.message}")
 				.pipe res
