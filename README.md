@@ -1,7 +1,7 @@
 API Hack
 =======
 
-API Hack is a general purpose tool to manually interact with any RESTful API.
+API Hack is a general purpose tool to manually interact with any restful API.
 
 #Features
 
